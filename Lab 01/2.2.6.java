@@ -56,7 +56,6 @@ class EquationSolver {
         if (d1 != 0 || d2 != 0) {
             return system + "The system has no solution.";
         }
-        // D = D1 = D2 = 0: the equations are dependent, unless one is inconsistent (0 = b)
         boolean eq1Empty = a11 == 0 && a12 == 0;
         boolean eq2Empty = a21 == 0 && a22 == 0;
         if ((eq1Empty && b1 != 0) || (eq2Empty && b2 != 0)) {
@@ -74,7 +73,6 @@ class EquationSolver {
 
         String equation = "Equation: " + a + "x^2 + " + b + "x + " + c + " = 0\n";
         if (a == 0) {
-            // Degenerates to the linear equation bx + c = 0
             equation += "a = 0, so the equation becomes linear: " + b + "x + " + c + " = 0\n";
             if (b == 0) {
                 if (c == 0) {
