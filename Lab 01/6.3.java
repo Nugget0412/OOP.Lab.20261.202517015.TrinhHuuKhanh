@@ -16,7 +16,6 @@ class StarTriangle {
             System.out.println("Invalid input! Please enter a positive integer.");
         }
 
-        // Row i has (n - i) leading spaces and (2i - 1) stars
         for (int i = 1; i <= n; i++) {
             StringBuilder row = new StringBuilder();
             for (int j = 0; j < n - i; j++) {
