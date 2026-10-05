@@ -1,0 +1,6 @@
+6.1:
+ - If the user clicks Cancel, or closes the dialog, the program still shows "You have chosen No"
+ - Only "Yes" and "No": pass a title and the option type YES_NO_OPTION:
+int option = JOptionPane.showConfirmDialog(null,
+        "Do you want to change to a first class ticket?",
+        "Confirm", JOptionPane.YES_NO_OPTION);
