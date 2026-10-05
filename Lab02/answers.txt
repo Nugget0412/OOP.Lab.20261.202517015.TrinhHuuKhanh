@@ -1,0 +1,62 @@
+LAB 02 - ANSWERS
+
+Question 1 (Section 10):
+If you create a constructor method to build a DVD by title then create a constructor
+method to build a DVD by category, does Java allow you to do this?
+
+No. Both constructors would take exactly one String parameter, so they have the same
+signature: DigitalVideoDisc(String). Java tells overloaded methods apart only by the
+number, types and order of their parameters, not by the parameter names. The compiler
+reports "constructor DigitalVideoDisc(String) is already defined". To build a DVD by
+category, you would need a different signature (for example, a static factory method
+or a constructor with a different parameter list).
+
+
+Question 2 (Section 14.1):
+Try to add a method addDigitalVideoDisc which allows to pass an arbitrary number of
+arguments for dvd. Compared to an array parameter, what do you prefer in this case?
+
+The varargs version addDigitalVideoDisc(DigitalVideoDisc... dvds) and the array version
+addDigitalVideoDisc(DigitalVideoDisc[] dvdList) cannot both exist in the class, because
+inside the compiler varargs is an array, so they have the same signature.
+
+I prefer varargs here. It accepts both styles of call:
+    cart.addDigitalVideoDisc(dvd1, dvd2, dvd3);   // comma-separated
+    cart.addDigitalVideoDisc(dvdArray);           // an existing array
+while the array version only accepts an array, so the caller must build one first.
+The drawbacks of varargs: a method can have only one varargs parameter and it must be
+the last one, and it can be called with zero arguments, so the method should handle
+an empty list.
+
+
+Question 3 (Section 15):
+Is Java a Pass by Value or a Pass by Reference programming language?
+
+Java is always pass by value. For primitive types, the value itself is copied. For
+objects, the variable holds a reference (the address of the object), and that
+reference is copied into the parameter. The method therefore gets its own copy of the
+reference, pointing to the same object.
+
+
+Question 4 (Section 15):
+After the call of swap(jungleDVD, cinderellaDVD), why does the title of these two
+objects still remain?
+
+swap receives copies of the two references in o1 and o2. It only swaps those local
+copies, so inside swap o1 points to Cinderella and o2 points to Jungle. The variables
+jungleDVD and cinderellaDVD in main are never touched, and they still point to their
+original objects. When swap returns, o1, o2 and tmp disappear, so nothing changes.
+
+
+Question 5 (Section 15):
+After the call of changeTitle(jungleDVD, cinderellaDVD.getTitle()), why is the title
+of the JungleDVD changed?
+
+dvd receives a copy of the reference in jungleDVD, so both point to the same object.
+dvd.setTitle(title) changes that shared object, so the change is visible through
+jungleDVD in main. The next line, dvd = new DigitalVideoDisc(oldTitle), only makes the
+local copy dvd point to a new object. It does not affect jungleDVD, which still points
+to the original (now renamed "Cinderella") object.
+
+Conclusion: a method can modify the object a reference points to, but it cannot make
+the caller's variable point to a different object. That is why Java is pass by value.
