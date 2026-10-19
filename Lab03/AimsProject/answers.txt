@@ -1,15 +1,26 @@
 Lab 03 - Answers
 
-1. What should be the return type of toString()? (section 4)
+1. What should be the return type of toString()?
+The return type should be String because toString() overrides the method defined in Java's Object class. An overriding method must have a compatible return type.
+2. Which classes are aggregates of other classes? Do their constructors initialize their parts?
+The aggregate classes are Cart, Store, CompactDisc, and arguably Book, because they contain lists of other objects or data. Their lists are initialized at field declaration, so they are not null when the constructor runs. However, the actual parts are added later using methods such as addMedia() and addTrack(). This is aggregation because the parts can exist independently of the whole.
+3. If the object passed to equals() is not an instance of Media, what happens?
+If equals() checks instanceof Media before casting, it returns false, including when the argument is null. Without this check, casting an incompatible object to Media causes a ClassCastException at runtime.
+4. Polymorphism with toString(): what happens and why?
+The loop variable has the static type Media, so the compiler checks that toString() is available in Media. At runtime, dynamic binding ensures that Java calls the overridden method of the actual object, such as CompactDisc, DigitalVideoDisc, or Book. Therefore, each output displays class-specific information: CDs include their tracks, while books include their authors.
+5. Comparable approach
+a. What class should implement Comparable?
 
-2. Which classes are aggregates of other classes? Do the constructors of the whole classes initialize their parts? (section 14)
+Media should implement Comparable<Media> because the cart stores Media objects, and its subclasses can inherit the natural ordering.
 
-3. If the object passed to equals() is not an instance of Media, what happens? (section 15)
+b. How should compareTo() be implemented?
 
-4. Polymorphism with toString(): what happens and why? (section 16)
+For ordering by title ascending and cost descending, compare titles alphabetically first. If the titles are equal, compare costs in reverse order using Double.compare(other.cost, this.cost) so that the more expensive item comes first.
 
-5. Comparable approach (section 17):
-   a. What class should implement the Comparable interface?
-   b. How should compareTo() be implemented to reflect the ordering we want?
-   c. Can we have two ordering rules (title-cost and cost-title) with Comparable?
-   d. If DVDs order by title, then decreasing length, then cost, how would you modify the code?
+c. Can we have two ordering rules with Comparable?
+
+No. A class has only one natural ordering defined by compareTo(). To support other orderings, such as cost-title instead of title-cost, use separate Comparator implementations.
+
+d. If DVDs order by title, then decreasing length, then cost, how would you modify the code?
+
+Override compareTo() in DigitalVideoDisc. If the other object is also a DVD, compare title in ascending order, length in descending order, and cost in ascending order, in that priority. If the other object is a Book or CompactDisc, fall back to super.compareTo(other) to preserve Media's general ordering.
