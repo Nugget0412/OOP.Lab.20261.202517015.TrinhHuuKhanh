@@ -1,0 +1,15 @@
+Lab 03 - Answers
+
+1. What should be the return type of toString()? (section 4)
+
+2. Which classes are aggregates of other classes? Do the constructors of the whole classes initialize their parts? (section 14)
+
+3. If the object passed to equals() is not an instance of Media, what happens? (section 15)
+
+4. Polymorphism with toString(): what happens and why? (section 16)
+
+5. Comparable approach (section 17):
+   a. What class should implement the Comparable interface?
+   b. How should compareTo() be implemented to reflect the ordering we want?
+   c. Can we have two ordering rules (title-cost and cost-title) with Comparable?
+   d. If DVDs order by title, then decreasing length, then cost, how would you modify the code?
