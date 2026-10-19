@@ -3,11 +3,12 @@ package hust.soict.globalict.test.disc;
 import hust.soict.globalict.aims.media.DigitalVideoDisc;
 
 public class TestPassingParameter {
+
     public static void main(String[] args) {
         DigitalVideoDisc jungleDVD = new DigitalVideoDisc("Jungle");
         DigitalVideoDisc cinderellaDVD = new DigitalVideoDisc("Cinderella");
 
-        swap(jungleDVD, cinderellaDVD);
+        swap(jungleDVD, cinderellaDVD);   // set the breakpoint on this line
         System.out.println("jungle dvd title: " + jungleDVD.getTitle());
         System.out.println("cinderella dvd title: " + cinderellaDVD.getTitle());
 

@@ -1,27 +1,52 @@
 package hust.soict.globalict.aims.store;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import hust.soict.globalict.aims.media.Media;
 
 public class Store {
-    // Section 5 uses an array of DVDs; section 13 changes it to this. Final version shown.
+
     private ArrayList<Media> itemsInStore = new ArrayList<Media>();
 
     public void addMedia(Media media) {
-        // TODO (section 13)
+        if (itemsInStore.contains(media)) {
+            System.out.println("\"" + media.getTitle() + "\" is already in the store.");
+            return;
+        }
+        itemsInStore.add(media);
+        System.out.println("\"" + media.getTitle() + "\" has been added to the store.");
     }
 
     public void removeMedia(Media media) {
-        // TODO (section 13)
+        if (itemsInStore.remove(media)) {
+            System.out.println("\"" + media.getTitle() + "\" has been removed from the store.");
+        } else {
+            System.out.println("\"" + media.getTitle() + "\" is not in the store.");
+        }
     }
 
     public Media findByTitle(String title) {
-        // TODO (section 18)
+        for (Media m : itemsInStore) {
+            if (m.getTitle().equalsIgnoreCase(title.trim())) {
+                return m;
+            }
+        }
         return null;
     }
 
+    public List<Media> getItemsInStore() {
+        return itemsInStore;
+    }
+
     public void print() {
-        // TODO (section 18): list every item for "View store"
+        System.out.println("***********************STORE***********************");
+        if (itemsInStore.isEmpty()) {
+            System.out.println("(The store is empty)");
+        }
+        for (int i = 0; i < itemsInStore.size(); i++) {
+            System.out.println((i + 1) + ". " + itemsInStore.get(i).toString());
+        }
+        System.out.println("****************************************************");
     }
 }

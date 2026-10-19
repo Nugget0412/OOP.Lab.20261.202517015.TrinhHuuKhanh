@@ -1,26 +1,145 @@
-Lab 03 - Answers
+=====================================================================
+LAB 03 - OBJECT-ORIENTED TECHNIQUES - ANSWERS
+Student: Trinh Huu Khanh - 202517015 - ICT (package prefix: hust.soict.globalict)
+=====================================================================
 
-1. What should be the return type of toString()?
-The return type should be String because toString() overrides the method defined in Java's Object class. An overriding method must have a compatible return type.
-2. Which classes are aggregates of other classes? Do their constructors initialize their parts?
-The aggregate classes are Cart, Store, CompactDisc, and arguably Book, because they contain lists of other objects or data. Their lists are initialized at field declaration, so they are not null when the constructor runs. However, the actual parts are added later using methods such as addMedia() and addTrack(). This is aggregation because the parts can exist independently of the whole.
-3. If the object passed to equals() is not an instance of Media, what happens?
-If equals() checks instanceof Media before casting, it returns false, including when the argument is null. Without this check, casting an incompatible object to Media causes a ClassCastException at runtime.
-4. Polymorphism with toString(): what happens and why?
-The loop variable has the static type Media, so the compiler checks that toString() is available in Media. At runtime, dynamic binding ensures that Java calls the overridden method of the actual object, such as CompactDisc, DigitalVideoDisc, or Book. Therefore, each output displays class-specific information: CDs include their tracks, while books include their authors.
-5. Comparable approach
-a. What class should implement Comparable?
+---------------------------------------------------------------------
+Section 4. What should be the return type of the toString() method?
+---------------------------------------------------------------------
+The return type is String. toString() overrides public String toString()
+inherited from java.lang.Object, so it must keep exactly the same
+signature, and it must RETURN the text instead of printing it. Returning
+a String lets the caller decide what to do with it (print it, put it in
+a list such as "1. DVD - ...", concatenate it, write it to a file), and
+it is also what println() calls automatically when it is given an object.
 
-Media should implement Comparable<Media> because the cart stores Media objects, and its subclasses can inherit the natural ordering.
+---------------------------------------------------------------------
+Section 6. String, StringBuilder and StringBuffer (observations)
+---------------------------------------------------------------------
+Measured on my machine with ConcatenationInLoops (65,536 appends):
+    String +       : ~946 ms
+    StringBuffer   : ~12 ms
+    StringBuilder  : ~3 ms
+GarbageCreator vs NoGarbage on a 300 KB file:
+    + operator     : ~27,000 ms
+    StringBuffer   : ~23 ms
 
-b. How should compareTo() be implemented?
+Explanation: String is immutable. Each s += x creates a NEW String,
+copies all the old characters into it and leaves the old object as
+garbage. For n appends this copies 1 + 2 + ... + n characters, i.e.
+O(n^2) work, and produces n garbage objects that the garbage collector
+must keep cleaning, so a large file makes the program look frozen.
+StringBuffer and StringBuilder keep one mutable, growable char array
+and append in place (amortised O(1) per append, O(n) total), so almost
+no garbage is created. StringBuffer is synchronized (thread-safe),
+StringBuilder is not, which is why StringBuilder is slightly faster in
+single-threaded code.
 
-For ordering by title ascending and cost descending, compare titles alphabetically first. If the titles are equal, compare costs in reverse order using Double.compare(other.cost, this.cost) so that the more expensive item comes first.
+---------------------------------------------------------------------
+Section 14. Which classes are aggregates of other classes? Do all
+constructors of the whole classes initialize their parts?
+---------------------------------------------------------------------
+Whole -> part relationships in AIMS:
+  - Cart        aggregates Media   (ArrayList<Media> itemsOrdered)
+  - Store       aggregates Media   (ArrayList<Media> itemsInStore)
+  - CompactDisc aggregates Track   (ArrayList<Track> tracks)
+  - Book        aggregates authors (List<String> authors)
 
-c. Can we have two ordering rules with Comparable?
+Yes. In every whole class the collection of parts is initialized at its
+declaration (= new ArrayList<...>()), which runs before the body of
+EVERY constructor, so no constructor can leave the list null.
+Some constructors also accept initial parts and add them through the
+same add method (Book(title, category, cost, authors) calls addAuthor,
+CompactDisc(..., tracks) calls addTrack), so the duplicate checks are
+applied there too. The parts themselves are not created by the whole:
+Media objects exist on their own and can be in the Store and in the Cart
+at the same time, which is why this is aggregation, not composition.
+The parent constructors are reused with super(...) (Media <- Disc <-
+DigitalVideoDisc / CompactDisc, Media <- Book), and the redundant setters
+were removed; only setTitle is kept because the debug exercise uses it.
 
-No. A class has only one natural ordering defined by compareTo(). To support other orderings, such as cost-title instead of title-cost, use separate Comparator implementations.
+---------------------------------------------------------------------
+Section 15. When overriding equals(), if the passed object is not an
+instance of Media, what happens?
+---------------------------------------------------------------------
+If we cast directly, (Media) o throws a ClassCastException at run time
+when o is, for example, a String or a Track, and the program crashes in
+the middle of list.contains(...).
+To avoid this, equals() first checks "if (!(o instanceof Media)) return
+false;". instanceof is also false for null, so null is handled too. An
+object that is not a Media can never be equal to a Media, so returning
+false is the correct answer according to the equals() contract.
+(Track.equals does the same check with instanceof Track.)
+Because equals() is overridden, hashCode() is overridden as well, so
+that equal objects always have equal hash codes.
 
-d. If DVDs order by title, then decreasing length, then cost, how would you modify the code?
+---------------------------------------------------------------------
+Section 16. Polymorphism with toString(): observe and explain
+---------------------------------------------------------------------
+Output of the loop over List<Media> containing a CD, a DVD and a Book:
+    CD - Thriller - Pop - Michael Jackson - Quincy Jones - 552: 15.5 $
+          Track - Beat It - 258
+          Track - Billie Jean - 294
+    DVD - The Lion King - Animation - Roger Allers - 87: 19.95 $
+    Book - Clean Code - Programming - Authors: [Robert C. Martin] - ...
 
-Override compareTo() in DigitalVideoDisc. If the other object is also a DVD, compare title in ascending order, length in descending order, and cost in ascending order, in that priority. If the other object is a Book or CompactDisc, fall back to super.compareTo(other) to preserve Media's general ordering.
+Explanation: the loop variable m has the static (declared) type Media,
+but each line is printed in a different format. The compiler only checks
+that toString() exists for type Media (it does, inherited from Object
+and overridden in Media). At run time the JVM uses dynamic binding
+(late binding): it looks at the ACTUAL class of the object m refers to
+and calls the most specific override - CompactDisc.toString(),
+DigitalVideoDisc.toString() or Book.toString(). So the same call
+m.toString() has different behaviour depending on the object. This is
+run-time polymorphism (method overriding). The code that prints the
+list does not need any if/instanceof, and a new media type only needs
+its own toString() to be printed correctly.
+
+---------------------------------------------------------------------
+Section 17. Questions about the Comparable approach
+---------------------------------------------------------------------
+1) What class should implement the Comparable interface?
+   The Media class: public abstract class Media implements
+   Comparable<Media>. All items in the cart are Media, so Collections.sort
+   needs to compare any two Media (a DVD with a Book, etc.). The
+   subclasses inherit compareTo() automatically.
+
+2) How should compareTo() be implemented to reflect the ordering?
+   For "by title, then cost (higher cost first)":
+       public int compareTo(Media other) {
+           int c = this.getTitle().compareToIgnoreCase(other.getTitle());
+           if (c != 0) return c;
+           return Float.compare(other.getCost(), this.getCost());
+       }
+   It returns a negative number if this comes first, 0 if equal, positive
+   if this comes after. Then Collections.sort(itemsOrdered) is enough.
+
+3) Can we have two ordering rules (title-cost and cost-title) with
+   Comparable?
+   No. Comparable defines ONE natural ordering, because a class has only
+   one compareTo() method. To sort in several ways we need Comparator
+   objects (MediaComparatorByTitleCost, MediaComparatorByCostTitle),
+   which is why the lab uses Comparator. (A flag field to switch the
+   rule would be fragile and not thread-safe.)
+
+4) DVDs have a different rule: title, then decreasing length, then cost.
+   How to modify the code?
+   Override compareTo() in DigitalVideoDisc:
+       @Override
+       public int compareTo(Media other) {
+           if (!(other instanceof DigitalVideoDisc)) {
+               return super.compareTo(other);   // DVD vs other media
+           }
+           DigitalVideoDisc d = (DigitalVideoDisc) other;
+           int c = getTitle().compareToIgnoreCase(d.getTitle());
+           if (c != 0) return c;
+           c = Integer.compare(d.getLength(), getLength()); // longer first
+           if (c != 0) return c;
+           return Float.compare(getCost(), d.getCost());
+       }
+   Caution: the rule must stay consistent (if a < b then b > a). When a
+   DVD is compared with a non-DVD, both sides must use the same Media
+   rule, otherwise sort() may give wrong results or throw
+   "Comparison method violates its general contract".
+   With the Comparator approach, the same idea is a comparator that
+   checks instanceof DigitalVideoDisc for both objects.
