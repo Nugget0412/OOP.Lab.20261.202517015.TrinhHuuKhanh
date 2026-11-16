@@ -3,6 +3,7 @@ package hust.soict.globalict.swing;
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +21,8 @@ public class NumberGrid extends JFrame {
     public NumberGrid() {
 
         tfDisplay = new JTextField();
+        // Give the display a fixed height so it stays visible in the small 200x200 frame
+        tfDisplay.setPreferredSize(new Dimension(0, 30));
         tfDisplay.setComponentOrientation(
                 ComponentOrientation.RIGHT_TO_LEFT);
 
