@@ -1,0 +1,97 @@
+=====================================================================
+LAB 04 - SWING GUI PROGRAMMING - ANSWERS
+Student: Trinh Huu Khanh - 202517015 - ICT (package prefix: hust.soict.globalict)
+=====================================================================
+
+---------------------------------------------------------------------
+Section 1.3. Compare Swing and AWT elements
+---------------------------------------------------------------------
+The comparison is based on the two versions of the same application in
+GUIProject: AWTAccumulator and SwingAccumulator
+(package hust.soict.globalict.swing).
+
+a) Top-level containers
+    AWT   : java.awt.Frame      (AWTAccumulator extends Frame)
+    Swing : javax.swing.JFrame  (SwingAccumulator extends JFrame)
+
+  - JFrame is a subclass of Frame, so a JFrame is still an AWT window,
+    but it adds a content pane (plus a root pane, layered pane, glass
+    pane and an optional JMenuBar).
+  - In AWT the components and the layout are put directly on the Frame:
+        setLayout(new GridLayout(2, 2));
+        add(new Label("Enter an Integer: "));
+    In Swing they are put on the content pane of the JFrame:
+        Container cp = getContentPane();
+        cp.setLayout(new GridLayout(2, 2));
+        cp.add(new JLabel("Enter an Integer: "));
+  - Closing the window: a Frame does nothing when the X button is
+    clicked, so AWTAccumulator has to register a WindowListener
+    (a WindowAdapter whose windowClosing() calls System.exit(0)).
+    A JFrame only needs one line:
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  - The other top-level containers follow the same pattern:
+    Dialog -> JDialog, Applet -> JApplet.
+
+b) Class names of the components
+  The Swing class has the same name as the AWT class with a "J" in
+  front, and lives in javax.swing instead of java.awt:
+
+        AWT (java.awt)        Swing (javax.swing)
+        -----------------     -------------------
+        Frame                 JFrame
+        Panel                 JPanel
+        Dialog                JDialog
+        Label                 JLabel
+        TextField             JTextField
+        TextArea              JTextArea
+        Button                JButton
+        Checkbox              JCheckBox
+        Choice                JComboBox
+        List                  JList
+        MenuBar / Menu /      JMenuBar / JMenu /
+        MenuItem              JMenuItem
+
+  In the accumulator only three classes change: Frame -> JFrame,
+  Label -> JLabel and TextField -> JTextField. The methods used on
+  them (setEditable, getText, setText, addActionListener, setTitle,
+  setSize, setVisible) are the same in both versions.
+  AWT components are "heavyweight": each one is backed by a native
+  component of the operating system. Swing components (except the
+  top-level containers) are "lightweight": they are drawn by Java.
+  Swing also has components with no AWT equivalent (JTable, JTree,
+  JTabbedPane, JOptionPane, ...).
+
+c) Event handling
+  The event handling is the same. Swing does not have its own event
+  model for this; it reuses the AWT one from java.awt.event:
+    - the source (TextField / JTextField) registers a listener with
+      addActionListener(new TFInputListener());
+    - the listener is a named inner class implementing ActionListener;
+    - pressing Enter in the text field fires an ActionEvent, and
+      actionPerformed(ActionEvent evt) parses the number, adds it to
+      the sum and updates the output field.
+  The TFInputListener class is identical, line for line, in
+  AWTAccumulator and SwingAccumulator. The layout manager (GridLayout)
+  is also the same AWT class in both. The only event-related difference
+  is the window-closing handling described in (a). Swing adds some
+  extra event types of its own in javax.swing.event (for example
+  ListSelectionEvent, ChangeEvent), but they follow the same
+  source / listener / event-object pattern.
+
+d) Appearance
+  - AWT components are native, so AWTAccumulator looks like a standard
+    window of the operating system (on Windows: native Windows text
+    fields and labels), and it would look different on another OS.
+  - Swing components are painted by Java using a "look and feel"
+    (the default cross-platform one is Metal), so SwingAccumulator has
+    the same Java look on every operating system: a different font
+    (bold labels), different borders on the text fields and a light
+    grey background for the read-only output field. The look and feel
+    can be changed with UIManager.setLookAndFeel(...).
+  - Only the title bar and window border come from the operating
+    system in both cases, because JFrame is still a heavyweight window.
+
+Summary: moving from AWT to Swing mostly means adding "J" to the class
+names, adding components to the content pane instead of the frame, and
+using setDefaultCloseOperation(); the event handling and the layout
+managers stay the same, while the look of the components changes.
